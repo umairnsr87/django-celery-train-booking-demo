@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:5000
+    volumes:
+    -  .:/app
+    ports:
+    -  "5000:5000"
+
+    depends_on:
+      - redis
+      - worker
+  
+  redis:
+    restart: always
+    image: redis:alpine
+
+  
+  worker:
+    build: .
+    command: celery -A test_tft worker -l INFO
+    depends_on:
+      - "redis"
+    volumes:
+      - .:/app
+volumes:
+  worker:
+  web:
